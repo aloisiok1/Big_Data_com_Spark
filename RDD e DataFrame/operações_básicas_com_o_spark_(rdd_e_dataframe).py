@@ -49,3 +49,52 @@ df = spark.read.csv("/content/cereal.csv", sep = ",", inferSchema = True, header
 
 df.printSchema()
 
+"""##6 Select()"""
+
+df.select("name", "mfr", "rating").show()
+
+"""##7 withColumn() Mudança de Nome e função com o Cast"""
+
+df.withColumn("Calories", df["calories"].cast("String")).printSchema()
+
+"""##8 groupBy"""
+
+df.groupBy("name", "calories").count().show()
+
+df.groupBy("calories").count().show()
+
+"""##9 orderBy()"""
+
+#ordenando pela coluna protein
+df.orderBy("protein").show()
+
+#ordenando pela coluna calories
+df.orderBy("calories").show()
+
+"""##10 Case When"""
+
+from pyspark.sql.functions import when
+
+df.select("name", when(df.vitamins >= "25", "rich in vitamins")).show()
+
+"""##11 filter()"""
+
+df.filter(df.calories=="100").show(50)
+
+"""##12 isNull() / isNotNull()"""
+
+# (*) no final vai baicar toda a biclioteca
+from pyspark.sql.functions import *
+
+#trouxe todas as linhas que não são nulas
+df.filter(df.name.isNotNull()).show()
+
+#trouxe todas as linhas que são nulas
+df.filter(df.name.isNull()).show()
+
+#trouxe todas as linhas que são nulas na contagem
+df.filter(df.name.isNull()).count()
+
+#trouxe todas as linhas que não são nulas na contagem
+df.filter(df.name.isNotNull()).count()
+
