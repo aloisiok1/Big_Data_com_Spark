@@ -98,3 +98,65 @@ df.filter(df.name.isNull()).count()
 #trouxe todas as linhas que não são nulas na contagem
 df.filter(df.name.isNotNull()).count()
 
+"""##13 exemplos práticos de Transformações"""
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+spark = SparkSession.builder     .appName("Exemplos PySpark")     .getOrCreate()
+
+
+# Carregar dados de um arquivo CSV
+df = spark.read.csv("/content/cereal.csv", header=True, inferSchema=True)
+
+# Exibir o schema do DataFrame
+df.printSchema()
+
+# Selecionar colunas específicas
+df_selected = df.select("mfr", "type")
+
+# Filtrar registros com base em uma condição
+df_filtered = df.filter(col("calories") > 100)
+
+# Adicionar uma nova coluna calculada
+df_with_new_column = df.withColumn("nova_coluna", col("fat") * 2)
+
+# Renomear uma coluna
+df_renamed_column = df_with_new_column.withColumnRenamed("nova_coluna", "double_fat")
+
+df_selected.printSchema()
+
+df_filtered.show()
+
+df_with_new_column.printSchema()
+
+df_renamed_column.printSchema()
+
+"""##14 Exemplos práticos de Ações"""
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+spark = SparkSession.builder     .appName("Exemplos PySpark")     .getOrCreate()
+
+# Carregar dados de um arquivo CSV
+df = spark.read.csv("/content/cereal.csv", header=True, inferSchema=True)
+
+# Contar o número total de registros
+count = df.count()
+print("Número total de registros: ", count)
+
+# Exibir uma amostra dos dados
+df_sample = df.sample(fraction=0.1, seed=42)
+df_sample.show()
+
+# Calcular a média de uma coluna
+average = df.select("calories").groupBy().avg().collect()[0][0]
+print("Média das calorias: ", average)
+
+# Salvar o DataFrame em um arquivo CSV
+df.write.csv("/arquivo_teste.csv", header=True)
+
+df1 = spark.read.csv("/arquivo_teste.csv", sep = ",", inferSchema = True, header = True)
+df1.show()
+
