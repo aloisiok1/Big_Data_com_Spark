@@ -214,3 +214,96 @@ df = spark.sql('''
                    ''')
 df.show()
 
+"""#10 JOINs - INNER"""
+
+sales = spark.read.csv("/content/sales_data_sample.csv", sep = ",", inferSchema = True, header = True)
+sales.show()
+
+sales.printSchema()
+
+sales.createOrReplaceTempView("sales")
+
+data = spark.sql('''
+                 SELECT *
+                 FROM sales
+                 ''')
+
+data.show()
+
+data = spark.sql('''
+                 SELECT DISTINCT orderdate, qtr_id, month_id, year_id
+                 FROM sales
+                 ORDER BY orderdate
+                 ''')
+
+data.show()
+
+calendar = spark.sql('''
+                 SELECT DISTINCT ORDERDATE,
+                                 CUSTOMERNAME,
+                                 QTR_ID,
+                                 MONTH_ID,
+                                 YEAR_ID
+                 FROM sales
+                 ORDER BY ORDERDATE
+                 ''')
+
+
+
+sales_data = spark.sql('''
+                 SELECT DISTINCT ORDERNUMBER,
+                                 CUSTOMERNAME,
+                                 SALES,
+                                 QUANTITYORDERED,
+                                 PRODUCTCODE,
+                                 ORDERLINENUMBER,
+                                 PRICEEACH
+                 FROM sales
+                 ORDER BY ORDERNUMBER
+                 ''')
+
+customers = spark.sql('''
+                 SELECT DISTINCT CUSTOMERNAME,
+                                 PHONE,
+                                 ADDRESSLINE1,
+                                 ADDRESSLINE2,
+                                 CITY,
+                                 STATE,
+                                 POSTALCODE,
+                                 COUNTRY,
+                                 TERRITORY
+                 FROM sales
+                 ORDER BY CUSTOMERNAME
+                 ''')
+
+sales_data.createOrReplaceTempView("sales_data")
+calendar.createOrReplaceTempView("calendar")
+customers.createOrReplaceTempView("customers")
+
+customers.show(2)
+
+sales_data.show(2)
+
+customers.show(2)
+
+calendar.count()
+
+sales_data.count()
+
+customers.count()
+
+master = spark.sql('''
+                   SELECT *
+                   FROM sales_data s
+                   INNER JOIN customers c on s.CUSTOMERNAME = c.CUSTOMERNAME
+                   ''')
+
+master.show()
+
+master = spark.sql('''
+                   SELECT DISTINCT s.ordernumber, c.city
+                   FROM sales_data s
+                   INNER JOIN customers c on s.CUSTOMERNAME = c.CUSTOMERNAME
+                   ''')
+
+master.show()
